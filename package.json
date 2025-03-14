@@ -1,0 +1,33 @@
+{
+    "name": "asistente-telefonico",
+    "version": "1.0.0",
+    "description": "Asistente telefónico inteligente basado en IA con LLM y Twilio",
+    "main": "dist/index.js",
+    "scripts": {
+      "build": "tsc",
+      "start": "node dist/index.js",
+      "dev": "nodemon src/index.ts",
+      "test": "jest"
+    },
+    "author": "Félix Suárez",
+    "license": "MIT",
+    "dependencies": {
+      "@hono/node-server": "^1.4.0",
+      "dotenv": "^16.3.1",
+      "hono": "^3.11.7",
+      "openai": "^4.0.0",
+      "pino": "^8.16.2",
+      "pino-pretty": "^10.2.3",
+      "twilio": "^4.19.0"
+    },
+    "devDependencies": {
+      "@types/jest": "^29.5.10",
+      "@types/node": "^20.10.3",
+      "@types/pino": "^7.0.5",
+      "jest": "^29.7.0",
+      "nodemon": "^3.0.2",
+      "ts-jest": "^29.1.1",
+      "ts-node": "^10.9.1",
+      "typescript": "^5.3.2"
+    }
+  }

@@ -196,13 +196,6 @@ Para modificar el comportamiento del asistente, puedes editar el prompt del sist
 export const SYSTEM_PROMPT = `Eres un asistente telefónico para...`;
 ```
 
-## 📚 Documentación Adicional
-
-Para más información, consulta:
-- [Arquitectura del Sistema](docs/architecture.md)
-- [API Reference](docs/api.md)
-- [Guía de Despliegue](docs/deployment.md)
-
 ## 🚧 Limitaciones Conocidas
 
 - No es posible transferir llamadas a operadores humanos (en esta versión)

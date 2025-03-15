@@ -38,6 +38,7 @@ Ideal para pequeños negocios que desean mejorar su accesibilidad sin la complej
 - Cuenta de Twilio con un número de teléfono
 - Clave API de OpenAI
 - Conexión a internet estable
+- Ngrok u otro servicio similar para exponer endpoints locales
 
 ## 📥 Instalación
 
@@ -59,23 +60,27 @@ cp .env.example .env
 
 4. Actualiza el archivo `.env` con tus credenciales:
 ```
-# OpenAI API configuration
-OPENAI_API_KEY=tu_clave_api_openai
-OPENAI_MODEL=gpt-3.5-turbo
-
-# Twilio configuration
-TWILIO_ACCOUNT_SID=tu_account_sid_twilio
-TWILIO_AUTH_TOKEN=tu_auth_token_twilio
-TWILIO_PHONE_NUMBER=tu_numero_telefono_twilio
-
-# Server configuration
+# Configuración del servidor
 PORT=3000
 NODE_ENV=development
 
-# Restaurant specific configuration
-RESTAURANT_NAME="Tu Restaurante"
+# Configuración de OpenAI
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-3.5-turbo
+
+# Configuración de Twilio
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_PHONE_NUMBER=your-twilio-phone-number
+MY_PHONE_NUMBER=your-phone-number
+
+# Configuración del restaurante
+RESTAURANT_NAME="Restaurante El Buen Sabor"
 RESTAURANT_OPENING_HOURS="12:00 - 22:00"
 MAX_RESERVATION_SIZE=10
+
+# URL de Ngrok
+NGROK_URL=https://your-ngrok-url
 ```
 
 ## 🏃‍♂️ Ejecución
@@ -83,8 +88,14 @@ MAX_RESERVATION_SIZE=10
 ### Desarrollo
 
 ```bash
+# Iniciar el servidor
 npm run dev
+
+# En otra terminal, iniciar ngrok
+ngrok http 3000
 ```
+
+Después de iniciar ngrok, actualiza el valor de `NGROK_URL` en tu archivo `.env` con la URL proporcionada.
 
 ### Producción
 
@@ -95,10 +106,14 @@ npm run start
 
 ## 🌐 Configuración de Twilio
 
-1. Accede a tu [Dashboard de Twilio](https://www.twilio.com/console)
-2. Configura un webhook para tu número telefónico:
-   - URL de webhook: `https://tu-dominio.com/api/incoming-call`
-   - Método HTTP: `POST`
+1. Accede a tu [Dashboard de Twilio](https://console.twilio.com/)
+2. Ve a Phone Numbers > Manage Numbers
+3. Selecciona tu número telefónico
+4. Configura el webhook para llamadas entrantes:
+   - En la sección "Voice & Fax"
+   - Para "A CALL COMES IN", selecciona "Webhook"
+   - URL de webhook: `https://tu-url-de-ngrok.ngrok-free.app/` (sin `/api/incoming-call`, solo la raíz)
+   - Método HTTP: POST
 
 ## 🔄 Estructura del Proyecto
 
@@ -124,7 +139,9 @@ asistente-telefonico/
 │   │
 │   ├── utils/
 │   │   ├── logger.ts         # Utilidades de logging
-│   │   └── helpers.ts        # Funciones auxiliares
+│   │   ├── helpers.ts        # Funciones auxiliares
+│   │   ├── makeCall.ts       # Utilidad para realizar llamadas de prueba
+│   │   └── predefinedResponses.ts # Respuestas predefinidas de contingencia
 │   │
 │   ├── types/
 │   │   └── index.ts          # Definición de tipos TypeScript
@@ -144,6 +161,7 @@ asistente-telefonico/
 ## 📊 Endpoints
 
 ### Telefonía
+- `POST /`: Endpoint principal para llamadas entrantes (usa el mismo controlador que `/api/incoming-call`)
 - `POST /api/incoming-call`: Endpoint para llamadas entrantes
 - `POST /api/respond`: Endpoint para procesar respuestas del usuario
 
@@ -156,23 +174,20 @@ asistente-telefonico/
 - `GET /api/stats`: Obtener estadísticas
 - `GET /api/config`: Obtener configuración actual
 - `GET /api/echo`: Endpoint de prueba para depuración
+- `GET /api/test-call`: Realiza una llamada de prueba a tu número configurado
 
 ## 🧪 Testing
 
-### Ejecución de Tests
-```bash
-npm test
+### Prueba de llamada
+La forma más sencilla de probar el sistema es usar el endpoint de prueba:
+
+```
+http://localhost:3000/api/test-call
 ```
 
-### Tests Unitarios
-```bash
-npm run test:unit
-```
+Esto iniciará una llamada desde tu número de Twilio a tu número personal configurado en `MY_PHONE_NUMBER`.
 
-### Tests de Integración
-```bash
-npm run test:integration
-```
+También puedes llamar directamente a tu número de Twilio desde cualquier teléfono.
 
 ## 🔍 Monitorización
 
@@ -182,25 +197,28 @@ El sistema cuenta con un endpoint `/api/health` que permite verificar el estado 
 
 Basados en estudios recientes:
 - Comprensión de voz: ~90% en condiciones ideales
-- Coherencia conversacional: ~80% 
+- Coherencia conversacional: ~80%
 - Precisión de información: ~75%
 - Satisfacción del cliente: ~70%
 
 ## 🛠️ Personalización
 
 ### Prompt del Sistema
-
 Para modificar el comportamiento del asistente, puedes editar el prompt del sistema en `src/config/constants.ts`:
 
 ```typescript
 export const SYSTEM_PROMPT = `Eres un asistente telefónico para...`;
 ```
 
+### Respuestas Predefinidas
+Puedes modificar o añadir respuestas predefinidas en `src/utils/predefinedResponses.ts` para manejar casos comunes sin usar tokens de OpenAI.
+
 ## 🚧 Limitaciones Conocidas
 
 - No es posible transferir llamadas a operadores humanos (en esta versión)
 - El reconocimiento de voz puede tener dificultades en entornos ruidosos
 - Limitaciones inherentes a la disponibilidad de los servicios de OpenAI y Twilio
+- Las cuentas de prueba de Twilio tienen un mensaje de bienvenida que no se puede eliminar
 
 ## 🔜 Mejoras Futuras
 
@@ -209,4 +227,3 @@ export const SYSTEM_PROMPT = `Eres un asistente telefónico para...`;
 - Análisis de sentimiento
 - Transferencia a operadores humanos
 - Panel de administración web
-

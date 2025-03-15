@@ -10,9 +10,8 @@ const makeCall = async () => {
   const twilioPhone = process.env.TWILIO_PHONE_NUMBER!;
   const myPhone = process.env.MY_PHONE_NUMBER!;
 
-  // Obtener la URL actual de ngrok (podrías pasarla como parámetro)
-  // Para pruebas puedes usar una URL hardcodeada
-  const ngrokUrl = process.env.NGROK_URL || ' https://5b8b-45-238-180-51.ngrok-free.app';
+  // Obtener la URL de ngrok del entorno
+  const ngrokUrl = process.env.NGROK_URL || 'https://your-ngrok-url';
 
   const client = twilio(accountSid, authToken);
 
@@ -34,7 +33,7 @@ const makeCall = async () => {
   }
 };
 
-// Si se ejecuta directamente (node src/utils/makeCall.js)
+// Si se ejecuta directamente
 if (require.main === module) {
   makeCall()
     .then((callSid) => console.log(`Call SID: ${callSid}`))

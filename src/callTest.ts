@@ -12,7 +12,7 @@ const client = twilio(accountSid, authToken);
 
 client.calls
   .create({
-    url: 'https://5b8b-45-238-180-51.ngrok-free.app/api/incoming-call', // Your webhook in ngrok
+    url: 'https://your-ngrok-url/api/incoming-call', // Your webhook in ngrok
     to: myPhone, // Number to call (can be another Twilio or yours)
     from: twilioPhone, // Your Twilio number
   })

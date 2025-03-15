@@ -5,9 +5,8 @@ import { miscController } from '../controllers/miscController';
 import { logger } from '../utils/logger';
 import { makeCall } from '../utils/makeCall';
 
-
 export const routes = (app: Hono) => {
-  // Middleware the logging
+  // Middleware de logging
   app.use('*', async (c, next) => {
     const method = c.req.method;
     const path = c.req.path;
@@ -16,15 +15,14 @@ export const routes = (app: Hono) => {
   });
 
   app.post('/', async (c) => {
-    logger.info('Solicitud POST recibida en la ruta raíz');
-    
-    // Obtener y loguear todos los datos de la solicitud
+    logger.info('Solicitud POST recibida en la ruta raíz - Redirigiendo a handleIncomingCall');
+    return callController.handleIncomingCall(c);
+  });
+
+  app.post('/test-twiml', async (c) => {
+    logger.info('Solicitud recibida en la ruta de prueba TwiML');
     const data = await c.req.parseBody();
     logger.info(`Datos recibidos: ${JSON.stringify(data)}`);
-    
-    // Verificar encabezados
-    const headers = Object.fromEntries(c.req.headers.entries());
-    logger.info(`Encabezados: ${JSON.stringify(headers)}`);
     
     const twiml = new (require('twilio').twiml.VoiceResponse)();
     twiml.say({ voice: 'woman', language: 'es-MX' } as any, 'Esta es una prueba en español. La API está funcionando correctamente.');
@@ -32,33 +30,9 @@ export const routes = (app: Hono) => {
     twiml.say({ voice: 'woman', language: 'es-MX' } as any, 'Ahora vamos a colgar. Adiós.');
     twiml.hangup();
     
-    const twimlString = twiml.toString();
-    logger.debug(`TwiML generado: ${twimlString}`);
-    
-    return c.text(twimlString, 200, { 'Content-Type': 'text/xml' });
-  });
-
-  app.post('/incoming', async (c) => {
-    logger.info('Llamada entrante directa recibida');
-    
-    const data = await c.req.parseBody();
-    logger.info(`Datos entrantes: ${JSON.stringify(data)}`);
-    
-    const twiml = new (require('twilio').twiml.VoiceResponse)();
-    twiml.say({ voice: 'woman', language: 'es-MX' } as any, 'Gracias por llamar directamente a nuestro número. Este es el asistente telefónico del Restaurante El Buen Sabor.');
-    twiml.gather({
-      input: ['speech'] as any,
-      action: '/api/respond',
-      method: 'POST',
-      speechTimeout: 'auto',
-      speechModel: 'phone_call',
-      language: 'es-ES'
-    });
-    
     return c.text(twiml.toString(), 200, { 'Content-Type': 'text/xml' });
   });
 
-  // Route for status test
   app.get('/', (c) => {
     return c.text('Asistente Telefónico API está funcionando');
   });

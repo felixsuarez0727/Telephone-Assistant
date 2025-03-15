@@ -15,7 +15,7 @@ export const callController = {
       logger.info('==== NUEVA LLAMADA ENTRANTE ====');
       logger.info(`URL completa: ${c.req.url}`);
       
-      // Obtener datos de la solicitud de Twilio
+      // Get Twilio request data
       const formData = await c.req.parseBody();
       logger.info(`Datos de la solicitud: ${JSON.stringify(formData)}`);
       
@@ -24,29 +24,29 @@ export const callController = {
       
       logger.debug(`CallSid: ${CallSid}, From: ${From}`);
       
-      // Verificar si ya existe un estado para esta llamada en las cookies
+      // Check if there is already a status for this call in the cookies
       const stateCookie = c.req.cookie('conversationState');
       let state;
       
       if (stateCookie) {
-        // Recuperar estado existente
+        // Recover existing status
         state = stateService.deserializeState(stateCookie);
         logger.debug('Estado de conversación recuperado de cookie');
       } else {
-        // Inicializar nuevo estado
+        // Initialize new status
         state = stateService.initializeState(CallSid, From);
         logger.debug('Nuevo estado de conversación inicializado');
       }
       
-      // Generar respuesta de bienvenida
+      // Generate welcome response
       const welcomeMessage = state.messages.find(m => m.role === 'assistant')?.content || DEFAULT_WELCOME_MESSAGE;
       logger.info(`Mensaje de bienvenida: "${welcomeMessage}"`);
       const twimlResponse = twilioService.generateWelcomeResponse(welcomeMessage);
       
-      // Almacenar el estado en cookies
+      // Store state in cookies
       c.cookie('conversationState', stateService.serializeState(state), {
         httpOnly: true,
-        maxAge: 60 * 60, // 1 hora
+        maxAge: 60 * 60, // 1 hour
         path: '/'
       });
       
@@ -60,7 +60,7 @@ export const callController = {
       logger.error(`Error en handleIncomingCall: ${error.message}`);
       logger.error(error.stack || '');
       
-      // En caso de error, generar una respuesta predeterminada
+      // In case of error, generate a default response
       const errorTwiml = twilioService.generateVoiceResponse(
         'Lo siento, estamos experimentando dificultades técnicas. Por favor, intenta más tarde.',
         true

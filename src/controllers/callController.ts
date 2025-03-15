@@ -12,47 +12,55 @@ export const callController = {
    */
   async handleIncomingCall(c: Context): Promise<Response> {
     try {
-      logger.info('Llamada entrante recibida');
+      logger.info('==== NUEVA LLAMADA ENTRANTE ====');
+      logger.info(`URL completa: ${c.req.url}`);
       
-      // Get Twilio request data
-      const data = await c.req.parseBody() as TwilioRequest;
+      // Obtener datos de la solicitud de Twilio
+      const formData = await c.req.parseBody();
+      logger.info(`Datos de la solicitud: ${JSON.stringify(formData)}`);
+      
+      const data = formData as TwilioRequest;
       const { CallSid, From } = data;
       
       logger.debug(`CallSid: ${CallSid}, From: ${From}`);
       
-      // Check if there is already a status for this call in the cookies
+      // Verificar si ya existe un estado para esta llamada en las cookies
       const stateCookie = c.req.cookie('conversationState');
       let state;
       
       if (stateCookie) {
-        // Recover existing status
+        // Recuperar estado existente
         state = stateService.deserializeState(stateCookie);
         logger.debug('Estado de conversación recuperado de cookie');
       } else {
-        // Initialize new status
+        // Inicializar nuevo estado
         state = stateService.initializeState(CallSid, From);
         logger.debug('Nuevo estado de conversación inicializado');
       }
       
-      // Generate welcome response
+      // Generar respuesta de bienvenida
       const welcomeMessage = state.messages.find(m => m.role === 'assistant')?.content || DEFAULT_WELCOME_MESSAGE;
+      logger.info(`Mensaje de bienvenida: "${welcomeMessage}"`);
       const twimlResponse = twilioService.generateWelcomeResponse(welcomeMessage);
       
-      // Store state in cookies
+      // Almacenar el estado en cookies
       c.cookie('conversationState', stateService.serializeState(state), {
         httpOnly: true,
-        maxAge: 60 * 60, // 1 hour
+        maxAge: 60 * 60, // 1 hora
         path: '/'
       });
       
       logger.debug('Enviando respuesta TwiML');
+      logger.debug(`TwiML generado: ${twimlResponse}`);
+      
       return c.text(twimlResponse, 200, {
         'Content-Type': 'text/xml'
       });
     } catch (error: any) {
       logger.error(`Error en handleIncomingCall: ${error.message}`);
+      logger.error(error.stack || '');
       
-      // In case of error, generate a default response
+      // En caso de error, generar una respuesta predeterminada
       const errorTwiml = twilioService.generateVoiceResponse(
         'Lo siento, estamos experimentando dificultades técnicas. Por favor, intenta más tarde.',
         true

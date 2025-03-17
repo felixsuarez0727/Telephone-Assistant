@@ -93,8 +93,17 @@ export const miscController = {
    */
   async getConfig(c: Context): Promise<Response> {
     try {
-      // Here we should validate the authentication before exposing the configuration
-      // For this example, we simply return some non-sensitive parameters
+      if (process.env.NODE_ENV === 'production') {
+        const authHeader = c.req.header('Authorization');
+        
+        if (!authHeader || authHeader !== `Bearer ${process.env.API_KEY}`) {
+          return c.json({ 
+            success: false, 
+            error: 'No autorizado' 
+          }, 401);
+        }
+      }
+      
       const config = {
         restaurantName: process.env.RESTAURANT_NAME,
         openingHours: process.env.RESTAURANT_OPENING_HOURS,
@@ -105,7 +114,7 @@ export const miscController = {
         systemLanguage: 'es-MX',
         lastUpdated: new Date().toISOString()
       };
-
+  
       return c.json(config);
     } catch (error: any) {
       logger.error(`Error al obtener configuración: ${error.message}`);

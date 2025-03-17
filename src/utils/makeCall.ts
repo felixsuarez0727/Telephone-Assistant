@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import twilio from 'twilio';
 import { logger } from './logger';
 
-config(); // Load environment variables
+config();
 
 const makeCall = async () => {
   const accountSid = process.env.TWILIO_ACCOUNT_SID!;
@@ -10,17 +10,17 @@ const makeCall = async () => {
   const twilioPhone = process.env.TWILIO_PHONE_NUMBER!;
   const myPhone = process.env.MY_PHONE_NUMBER!;
 
-  // Obtener la URL de ngrok del entorno
-  const ngrokUrl = process.env.NGROK_URL || 'https://your-ngrok-url';
+  // Usar la IP del servidor en producción
+  const serverUrl = process.env.SERVER_URL || 'http://104.248.254.55';
 
   const client = twilio(accountSid, authToken);
 
   try {
     logger.info(`Iniciando llamada de prueba a ${myPhone} desde ${twilioPhone}`);
-    logger.info(`Usando webhook: ${ngrokUrl}/api/incoming-call`);
+    logger.info(`Usando webhook: ${serverUrl}/api/incoming-call`);
     
     const call = await client.calls.create({
-      url: `${ngrokUrl}/api/incoming-call`,
+      url: `${serverUrl}/api/incoming-call`,
       to: myPhone,
       from: twilioPhone,
     });
@@ -33,7 +33,6 @@ const makeCall = async () => {
   }
 };
 
-// Si se ejecuta directamente
 if (require.main === module) {
   makeCall()
     .then((callSid) => console.log(`Call SID: ${callSid}`))

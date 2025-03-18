@@ -11,7 +11,7 @@ const makeCall = async () => {
   const myPhone = process.env.MY_PHONE_NUMBER!;
 
   // Usar la IP del servidor en producción
-  const serverUrl = process.env.SERVER_URL || 'http://104.248.254.55';
+  const serverUrl = process.env.SERVER_URL || 'http://tu-ip-o-dominio';
 
   const client = twilio(accountSid, authToken);
 

@@ -8,7 +8,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN!;
 const twilioPhone = process.env.TWILIO_PHONE_NUMBER!;
 const myPhone = process.env.MY_PHONE_NUMBER!;
 
-const serverUrl = process.env.SERVER_URL || 'http://104.248.254.55';
+const serverUrl = process.env.SERVER_URL || 'http://tu-ip-o-dominio';
 
 const client = twilio(accountSid, authToken);
 

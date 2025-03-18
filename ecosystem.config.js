@@ -10,7 +10,7 @@ module.exports = {
         env: {
           NODE_ENV: "production",
           PORT: 3000,
-          SERVER_URL: "http://104.248.254.55"
+          SERVER_URL: "http://tu-ip-o-dominio"
         }
       }
     ]
